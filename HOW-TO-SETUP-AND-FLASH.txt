@@ -1,0 +1,142 @@
+====================================================================
+ FLIPPER — M5STICK S3 (PUBLIC BUILD)
+ Web Flasher — Setup & Flashing Instructions
+====================================================================
+
+This folder is a complete, self-hostable web flasher. Anyone can host
+it and then flash the firmware straight from a web browser — no drivers,
+no Python, no command line.
+
+Files in this folder:
+  index.html                              the flash web page
+  manifest.json                           tells the flasher where/how to write the bin
+  Flipper-m5stick_s3-public-merged.bin    the firmware (full-flash image, ESP32-S3)
+  HOW-TO-SETUP-AND-FLASH.txt              this file
+  README.md                               same info in Markdown
+
+
+====================================================================
+ PART 1 — HOSTING IT (for the person sharing the firmware)
+====================================================================
+
+IMPORTANT: Web browsers only allow direct USB flashing over a SECURE
+connection (https:// or localhost). A plain http:// site will load the
+page but the "Install" button will not work. So you must host over HTTPS.
+
+Pick ONE of the options below.
+
+--------------------------------------------------------------------
+OPTION A — GitHub Pages (free, permanent link)
+--------------------------------------------------------------------
+  1. Create a GitHub account and a new repository (public).
+  2. Upload all files from THIS folder into the repository
+     (index.html, manifest.json, the .bin, and this .txt).
+       - Web upload: repo -> "Add file" -> "Upload files" -> drag them in
+                     -> "Commit changes".
+  3. In the repo: Settings -> Pages.
+  4. Under "Build and deployment", Source = "Deploy from a branch".
+     Branch = main, Folder = / (root). Click Save.
+  5. Wait ~1 minute. GitHub shows a URL like:
+       https://YOURNAME.github.io/YOURREPO/
+  6. Share that URL. That is your web flasher.
+
+--------------------------------------------------------------------
+OPTION B — Netlify Drop (fastest, drag-and-drop)
+--------------------------------------------------------------------
+  1. Go to  https://app.netlify.com/drop
+  2. Drag THIS ENTIRE FOLDER onto the page.
+  3. Netlify gives you an https:// link instantly. Share it.
+
+  (Cloudflare Pages and Vercel work the same way — any static host
+   that serves over HTTPS is fine.)
+
+--------------------------------------------------------------------
+OPTION C — Test on your own computer first (localhost)
+--------------------------------------------------------------------
+  localhost counts as "secure", so flashing works locally without HTTPS.
+  Requires Python installed.
+
+  1. Open a terminal / command prompt IN this folder.
+  2. Run:
+         python -m http.server 8000
+  3. Open  http://localhost:8000/  in Chrome or Edge.
+  4. Flash as described in Part 2. Press Ctrl+C in the terminal to stop.
+
+
+====================================================================
+ PART 2 — FLASHING THE DEVICE (for the end user)
+====================================================================
+
+YOU NEED:
+  - An M5Stick S3.
+  - A USB-C DATA cable (a charge-only cable will NOT work).
+  - A desktop computer running Google Chrome or Microsoft Edge.
+    (Firefox, Safari, and phones/tablets cannot flash — they lack
+     the Web Serial feature. Use the manual method in Part 3 instead.)
+
+STEPS:
+  1. Open the flasher web page (the https:// link, or http://localhost:8000/).
+  2. Plug the M5Stick S3 into the computer with the USB-C data cable.
+  3. Click  "Connect & Install".
+  4. A browser popup lists serial ports. Select the device's port and
+     click Connect.
+  5. Choose  "Install"  and confirm the erase when asked.
+     (This wipes the chip and writes the new firmware — that's normal.)
+  6. Wait for it to reach 100%. Do not unplug during flashing.
+  7. When it finishes, press the RESET button on the device once.
+     The firmware boots.
+
+DONE.
+
+
+====================================================================
+ PART 3 — TROUBLESHOOTING
+====================================================================
+
+No serial port appears in the popup, OR "Connect" fails:
+  The ESP32-S3 sometimes needs to be put into "download mode" by hand:
+    1. Hold the BOOT button (labeled G0).
+    2. While holding BOOT, tap the RESET button once.
+    3. Release BOOT.
+    4. Click "Connect & Install" again and pick the port.
+    5. After flashing, press RESET once to boot.
+
+The Install button is greyed out / says unsupported:
+  You are not on Chrome or Edge, or the page is on http:// (not https://).
+  Use desktop Chrome/Edge and make sure the URL starts with https://
+  (or is http://localhost).
+
+Nothing happens when I plug in the device:
+  The cable is probably charge-only. Swap to a known USB-C DATA cable.
+
+MANUAL FLASH (no supported browser) — using esptool:
+  1. Install Python, then run:
+         pip install esptool
+  2. Flash (replace COMx with your port, e.g. COM12):
+         esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x0 Flipper-m5stick_s3-public-merged.bin
+     macOS/Linux port looks like /dev/tty.usbmodem... or /dev/ttyACM0
+  Flash mode/size/frequency are already baked into the image, so no
+  extra flags are needed.
+
+
+====================================================================
+ NOTES
+====================================================================
+  - The .bin is a single MERGED full-flash image written at offset 0x0
+    (bootloader + partition table + application + the internal /ext
+    storage together).
+  - This build has NO physical SD card slot: /ext lives on an internal
+    flash partition. The flasher preloads it with the PUBLIC databases —
+    plaintext/community SubGHz KeeLoq codes (keeloq_mfcodes_user), NFC
+    dictionaries, and IR universal-remote databases — so rolling-code
+    decoding, NFC lookups, and IR work out of the box.
+  - PRIVATE/proprietary encrypted keystores (keeloq_mfcodes, alutech_at_4n,
+    nice_flor_s) are intentionally NOT included in this public build.
+  - The same public database files are also provided loose in the
+    sd_content/ folder next to this file, for reference or manual use.
+  - Re-flashing / choosing "Install" ERASES the chip, including anything
+    you saved to /ext. That's normal for a clean install.
+  - To publish an updated firmware later: replace the .bin with the new
+    one (keep the exact same filename) and bump "version" in manifest.json.
+  - Chip: ESP32-S3.  Build variant: PUBLIC.
+====================================================================

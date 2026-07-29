@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Flipper — M5Stick S3 (Public)</title>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js"></script>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --fg: #1a1c20;
+      --muted: #5b6270;
+      --border: #e3e6ea;
+      --accent: #ff7a00;
+      --accent-fg: #ffffff;
+      --code-bg: #f0f2f4;
+      --warn-bg: #fff7e6;
+      --warn-border: #ffd591;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115;
+        --card: #171a21;
+        --fg: #e8eaed;
+        --muted: #9aa2b1;
+        --border: #262b34;
+        --accent: #ff8c1a;
+        --accent-fg: #1a1c20;
+        --code-bg: #0b0d11;
+        --warn-bg: #2a2312;
+        --warn-border: #5c4a1a;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .wrap { width: 100%; max-width: 640px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 1.6rem; margin: 0 0 4px; }
+    .sub { color: var(--muted); margin: 0 0 24px; font-size: 0.95rem; }
+    .flash-row { text-align: center; padding: 8px 0 4px; }
+    esp-web-install-button { --esp-tools-button-color: var(--accent); }
+    esp-web-install-button[install-supported] .unsupported { display: none; }
+    button.install {
+      background: var(--accent);
+      color: var(--accent-fg);
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button.install:hover { filter: brightness(1.05); }
+    .unsupported {
+      display: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+    .no-support esp-web-install-button { display: none; }
+    .no-support .unsupported { display: block; }
+    h2 { font-size: 1.05rem; margin: 24px 0 8px; }
+    ol, ul { margin: 0 0 8px; padding-left: 22px; }
+    li { margin: 6px 0; }
+    code {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 6px;
+      font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 0.88em;
+    }
+    .warn {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.92rem;
+      margin: 16px 0 0;
+    }
+    .footer { color: var(--muted); font-size: 0.82rem; text-align: center; }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Flipper — M5Stick S3</h1>
+      <p class="sub">Public build · full-flash image · ESP32-S3</p>
+
+      <div class="flash-row">
+        <esp-web-install-button manifest="./manifest.json">
+          <button class="install" slot="activate">⚡ Connect &amp; Install</button>
+          <span slot="unsupported" class="unsupported">
+            Your browser can’t flash directly. Use <strong>Chrome</strong> or <strong>Edge</strong> on a desktop, or see the manual method below.
+          </span>
+          <span slot="not-allowed" class="unsupported">
+            Serial access was blocked. Reload the page over <strong>https://</strong> and allow the serial permission.
+          </span>
+        </esp-web-install-button>
+      </div>
+
+      <div class="warn">
+        <strong>Before you click:</strong> plug the M5Stick S3 into your computer with a USB‑C <em>data</em> cable (not charge‑only). Choose <strong>Install</strong> when prompted — it does a clean flash of the whole chip.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Steps</h2>
+      <ol>
+        <li>Open this page in <strong>Chrome</strong> or <strong>Edge</strong> on a computer (phones and Safari/Firefox can’t flash).</li>
+        <li>Connect the device via USB‑C.</li>
+        <li>Click <strong>Connect &amp; Install</strong> and pick the device’s serial port.</li>
+        <li>Choose <strong>Install</strong>, confirm the erase, and wait for it to finish.</li>
+        <li>Press the <strong>RESET</strong> button once when done — the firmware boots.</li>
+      </ol>
+
+      <h2>If no serial port appears</h2>
+      <p>The S3 sometimes needs to be put in download mode by hand:</p>
+      <ul>
+        <li>Hold <strong>BOOT</strong> (G0), tap <strong>RESET</strong>, then release <strong>BOOT</strong>.</li>
+        <li>Click <strong>Connect &amp; Install</strong> again and select the port.</li>
+        <li>After flashing, press <strong>RESET</strong> once to boot.</li>
+      </ul>
+
+      <h2>Manual flashing (no browser support)</h2>
+      <p>With Python installed:</p>
+      <ul>
+        <li><code>pip install esptool</code></li>
+        <li><code>esptool --chip esp32s3 --port COMx --baud 921600 write_flash 0x0 Flipper-m5stick_s3-public-merged.bin</code></li>
+      </ul>
+      <p class="sub">Replace <code>COMx</code> with your port (macOS/Linux: <code>/dev/tty.usbmodem…</code> or <code>/dev/ttyACM0</code>). Flash mode/size/freq are already baked into the image.</p>
+    </div>
+
+    <p class="footer">Flipper M5Stick S3 · public build · 2026‑07‑27</p>
+  </div>
+
+  <script>
+    // Show the fallback message if the browser lacks Web Serial.
+    if (!('serial' in navigator)) {
+      document.body.classList.add('no-support');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Flipper M5Stick S3 (Public)",
+  "version": "public-2026-07-29a",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S3",
+      "parts": [
+        {
+          "path": "Flipper-m5stick_s3-public-merged.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
